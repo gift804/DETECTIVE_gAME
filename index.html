@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DETECTIVE TERMINAL v2.0</title>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #33ff33;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #terminal {
+            width: 85%;
+            max-width: 800px;
+            height: 450px;
+            border: 2px solid #33ff33;
+            padding: 20px;
+            background: rgba(0, 20, 0, 0.9);
+            box-shadow: 0 0 20px #228b22;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .input-area {
+            margin-top: 20px;
+            width: 85%;
+            max-width: 840px;
+            display: flex;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #33ff33;
+            color: #33ff33;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            flex-grow: 1;
+            outline: none;
+        }
+
+        .system-msg { color: #ffcc00; font-weight: bold; }
+        .error-msg { color: #ff3333; }
+        .success-msg { color: #33ffff; text-shadow: 0 0 5px #33ffff; }
+        .hint-text { color: #888888; font-style: italic; font-size: 0.9rem; }
+        
+        #scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="scanlines"></div>
+
+<h1>CRIMINAL DATABASE ACCESS</h1>
+
+<div id="terminal">
+    <p class="system-msg">[SYSTEM] Terminal Online. Case #8812: 'The Waxahachie Escape'</p>
+    <p>--------------------------------------------------</p>
+    <p id="objective"><strong>OBJECTIVE:</strong> Unlock the file by finding the 4-digit Year of Escape.</p>
+    <p id="clue"><strong>CLUE:</strong> The suspect was last seen in the mid-90s. Look closely at the screen for hidden data...</p>
+    <div id="output"></div>
+</div>
+
+<div class="input-area">
+    <span>DETECTOR@root:~# &nbsp;</span>
+    <input type="text" id="user-input" autofocus>
+</div>
+
+<p class="hint-text">Type your answer and press ENTER. Type 'HINT' if you are stuck.</p>
+
+<script>
+    const input = document.getElementById('user-input');
+    const output = document.getElementById('output');
+    const objText = document.getElementById('objective');
+    const clueText = document.getElementById('clue');
+    
+    let gameState = "LEVEL1";
+
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const val = input.value.trim().toUpperCase();
+            processCommand(val);
+            input.value = '';
+        }
+    });
+
+    function print(text, type = "") {
+        const p = document.createElement('p');
+        p.innerHTML = text;
+        if (type) p.className = type;
+        output.appendChild(p);
+        document.getElementById('terminal').scrollTop = document.getElementById('terminal').scrollHeight;
+    }
+
+    function processCommand(cmd) {
+        if (cmd === "HINT") {
+            showHint();
+            return;
+        }
+
+        if (gameState === "LEVEL1") {
+            if (cmd === "1994") {
+                print("> YEAR VERIFIED. ACCESSING LEVEL 2...", "success-msg");
+                gameState = "LEVEL2";
+                objText.innerHTML = "<strong>OBJECTIVE:</strong> Identify the getaway vehicle's color.";
+                clueText.innerHTML = "<strong>CLUE:</strong> The witness description said: 'The color of the sky at midnight.'";
+            } else {
+                print(`> ${cmd}: ERROR. INVALID YEAR.`, "error-msg");
+            }
+        } 
+        else if (gameState === "LEVEL2") {
+            if (cmd === "NAVY" || cmd === "BLACK" || cmd === "DARK BLUE") {
+                print("> VEHICLE COLOR CONFIRMED.", "success-msg");
+                gameState = "LEVEL3";
+                objText.innerHTML = "<strong>OBJECTIVE:</strong> Final Math Calibration.";
+                clueText.innerHTML = "<strong>CLUE:</strong> Solve for Radius: Volume = 100.48, Height = 6. (V = 1/3 * π * r² * h)";
+            } else {
+                print("> DATA MISMATCH. TRY ANOTHER COLOR.", "error-msg");
+            }
+        }
+        else if (gameState === "LEVEL3") {
+            if (cmd === "4") {
+                print("==========================================");
+                print("CASE CLOSED. SUSPECT LOCATED IN WAXAHACHIE.", "success-msg");
+                print("YOU ARE A MASTER DETECTIVE.", "success-msg");
+                print("==========================================");
+                input.disabled = true;
+            } else {
+                print("> CALCULATION ERROR. RE-CHECK YOUR MATH.", "error-msg");
+            }
+        }
+    }
+
+    function showHint() {
+        if (gameState === "LEVEL1") {
+            print("[HINT] The year is hidden in the very first image you sent me! It's 1994.", "hint-text");
+        } else if (gameState === "LEVEL2") {
+            print("[HINT] Think of very dark colors. Try 'NAVY' or 'BLACK'.", "hint-text");
+        } else if (gameState === "LEVEL3") {
+            print("[HINT] Use 3.14 for Pi. 100.48 divided by 2 * 3.14 is 16. The square root of 16 is your answer.", "hint-text");
+        }
+    }
+</script>
+
+</body>
+</html>
